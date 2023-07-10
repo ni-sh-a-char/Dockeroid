@@ -22,6 +22,9 @@ RUN adduser $USER libvirt
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/tools:${ANDROID_SDK_ROOT}/platform-tools
 
+# Create a named folder
+RUN mkdir -p /app
+
 # Download Android Command Line Tools
 RUN mkdir -p ${ANDROID_SDK_ROOT} && cd ${ANDROID_SDK_ROOT} && \
     wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O android-tools.zip && \
