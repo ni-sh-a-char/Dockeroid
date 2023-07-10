@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     bridge-utils \
     virt-manager \
     unzip \
-    wget
+    wget \
+    xvfb
 
 # Set up KVM permissions
 RUN adduser $USER kvm
