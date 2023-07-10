@@ -4,6 +4,7 @@ FROM ubuntu:latest
 # Install necessary packages
 RUN apt-get update && apt-get install -y \
     python3 \
+    python3-pip \
     openjdk-11-jdk \
     adb \
     qemu-kvm \
@@ -37,6 +38,10 @@ RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager --licenses
 
 # Install required Android SDK components
 RUN ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "extras;google;google_play_services" "system-images;android-30;google_apis;x86"
+
+# Install Python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # Create an AVD
 RUN echo "no" | ${ANDROID_SDK_ROOT}/tools/bin/avdmanager create avd --name myavd --package "system-images;android-30;google_apis;x86" --device "pixel" --sdcard 512M --force
