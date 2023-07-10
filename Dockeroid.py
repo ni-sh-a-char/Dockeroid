@@ -28,10 +28,10 @@ def main():
         st.subheader("Launch the virtual android device")
         virtual = st.button("Start the Android Virtual Device")
         if virtual:
-	        command = ['xvfb-run','-s', '-screen 0 1024x768x24','/opt/android-sdk/emulator/emulator','-avd', 'myavd','-no-snapshot-save']
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+		command = ['xvfb-run','-s', '-screen 0 1024x768x24','/opt/android-sdk/emulator/emulator','-avd', 'myavd','-no-snapshot-save']
+            	process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 	        stdout, stderr = process.communicate()
-            # Print the output
+            	# Print the output
 	        st.write(stdout)
 
     elif choice == "Android Debug Bridge":
