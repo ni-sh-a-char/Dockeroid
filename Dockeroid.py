@@ -4,7 +4,66 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import screeninfo
 import streamlit as st
-import base64 
+import base64
+
+# APK file upload function
+def upload_apk():
+    st.subheader('APK File Upload')
+    uploaded_file = st.file_uploader('Upload APK file')
+    if uploaded_file is not None:
+        with open('/app/app.apk', 'wb') as file:
+            file.write(uploaded_file.getbuffer())
+        st.write('File uploaded successfully')
+
+# Install APK function
+def install_apk():
+    st.subheader('Install APK')
+    adb_install_command = ['adb', 'install', '/app/app.apk']
+    process = subprocess.Popen(adb_install_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    output, error = process.communicate()
+    if error:
+        st.error(f'Error installing APK:\n{error}')
+    else:
+        st.success('APK installed successfully')
+
+# Uninstall APK function
+def uninstall_apk():
+    st.subheader('Uninstall APK')
+    package_name = st.text_input('Enter package name')
+    adb_uninstall_command = ['adb', 'uninstall', package_name]
+    process = subprocess.Popen(adb_uninstall_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    output, error = process.communicate()
+    if error:
+        st.error(f'Error uninstalling APK:\n{error}')
+    else:
+        st.success('APK uninstalled successfully')
+
+# Clear App Data function
+def clear_app_data():
+    st.subheader('Clear App Data')
+    package_name = st.text_input('Enter package name')
+    adb_clear_command = ['adb', 'shell', 'pm', 'clear', package_name]
+    process = subprocess.Popen(adb_clear_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    output, error = process.communicate()
+    if error:
+        st.error(f'Error clearing app data:\n{error}')
+    else:
+        st.success('App data cleared successfully')
+
+# List Installed Packages function
+def list_installed_packages():
+    st.subheader('List Installed Packages')
+    adb_list_command = ['adb', 'shell', 'pm', 'list', 'packages']
+    process = subprocess.Popen(adb_list_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    output, error = process.communicate()
+    if error:
+        st.error(f'Error listing installed packages:\n{error}')
+    else:
+        packages = output.split('\n')
+        packages = [pkg.replace('package:', '') for pkg in packages if pkg]
+        st.write('Installed packages:')
+        for pkg in packages:
+            st.write(pkg)
 
 def main():
 
@@ -57,8 +116,19 @@ def main():
 
     elif choice == "Android Debug Bridge":
         st.subheader("Perform adb commands for the application")
-	menu = [""]
+	menu_options = ['Install APK', 'Uninstall APK', 'Clear App Data', 'List Installed Packages']
+	selected_option = st.sidebar.selectbox('Select an option', menu_options)
+	
+	# Main program
+	if selected_option == 'Install APK':
+    		upload_apk()
+   		install_apk()
+	elif selected_option == 'Uninstall APK':
+    		uninstall_apk()
+	elif selected_option == 'Clear App Data':
+    		clear_app_data()
+	elif selected_option == 'List Installed Packages':
+    		list_installed_packages()
         
-
 if __name__ == '__main__':
     main()
