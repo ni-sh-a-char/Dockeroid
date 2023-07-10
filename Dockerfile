@@ -31,7 +31,14 @@ RUN mkdir -p ${ANDROID_SDK_ROOT} && cd ${ANDROID_SDK_ROOT} && \
 RUN yes | ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager --licenses
 
 # Install required Android SDK components
-RUN ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+RUN ${ANDROID_SDK_ROOT}/tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "extras;google;google_play_services" "system-images;android-30;google_apis;x86"
+
+# Create an AVD
+RUN echo "no" | ${ANDROID_SDK_ROOT}/tools/bin/avdmanager create avd --name myavd --package "system-images;android-30;google_apis;x86" --device "pixel" --sdcard 512M --force
+
+# Set environment variables
+ENV ANDROID_HOME=${ANDROID_SDK_ROOT}
+ENV ANDROID_AVD_HOME=/root/.android/avd
 
 # Set the default command
 CMD ["/bin/bash"]
