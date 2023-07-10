@@ -1,5 +1,4 @@
 streamlit
 reportlab
 screeninfo
-base64
-os
+pybase64
