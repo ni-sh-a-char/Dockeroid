@@ -3,6 +3,8 @@ from mimetypes import init
 import os
 import subprocess
 import streamlit as st
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 import plotly.express as px
 import pandas as pd
 import seaborn as sns
@@ -28,14 +30,31 @@ def main():
         st.subheader("Launch the virtual android device")
         virtual = st.button("Start the Android Virtual Device")
         if virtual:
-		command = ['xvfb-run','-s', '-screen 0 1024x768x24','/opt/android-sdk/emulator/emulator','-avd', 'myavd','-no-snapshot-save']
-            	process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-	        stdout, stderr = process.communicate()
-            	# Print the output
-	        st.write(stdout)
+		# Start the AVD
+		avd_command = ['xvfb-run', '-s', '-screen 0 1024x768x24', '/opt/android-sdk/emulator/emulator', '-avd', 'myavd', '-no-snapshot-save']
+		avd_process = subprocess.Popen(avd_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+		# Wait for the AVD to start
+		avd_process.wait()
+
+		# Run adb logcat command
+		logcat_command = ['adb', 'logcat']
+		logcat_process = subprocess.Popen(logcat_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+		logcat_output, logcat_error = logcat_process.communicate()
+
+		# Save logs in a PDF file
+		pdf_file = "logcat.pdf"
+		pdf_canvas = canvas.Canvas(pdf_file, pagesize=letter)
+		pdf_canvas.setFont("Courier", 10)
+		pdf_canvas.drawString(50, 750, "ADB Logcat Output:")
+		pdf_canvas.drawString(50, 700, logcat_output)
+		pdf_canvas.save()
+
+		st.write("Logs saved in", pdf_file)
 
     elif choice == "Android Debug Bridge":
         st.subheader("Perform adb commands for the application")
+	menu = [""]
         
 
 if __name__ == '__main__':
