@@ -2,6 +2,7 @@ import os
 import subprocess
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import screeninfo
 import streamlit as st
 import base64 
 
@@ -22,8 +23,14 @@ def main():
         st.subheader("Launch the virtual android device")
         virtual = st.button("Start the Android Virtual Device")
         if virtual:
+		# Get the screen size
+		screen = screeninfo.get_monitors()[0]
+		screen_width = screen.width
+		screen_height = screen.height
+		screen_depth = 24
+
 		# Start the AVD
-		avd_command = ['xvfb-run', '-s', '-screen 0 1024x768x24', '/opt/android-sdk/emulator/emulator', '-avd', 'myavd', '-no-snapshot-save']
+		avd_command = ['xvfb-run', '-s', f'-screen 0 {screen_width}x{screen_height}x{screen_depth}', '/opt/android-sdk/emulator/emulator', '-avd', 'myavd', '-no-snapshot-save']
 		avd_process = subprocess.Popen(avd_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
 		# Wait for the AVD to start
@@ -42,13 +49,11 @@ def main():
 		pdf_canvas.drawString(50, 700, logcat_output)
 		pdf_canvas.save()
 
-		# Provide the download link
-		with open(pdf_file, "rb") as file:
-    		pdf_data = file.read()
+		st.success("Logs saved in logcat.pdf")
 
-		b64_pdf = base64.b64encode(pdf_data).decode("utf-8")
-		href = f'<a href="data:application/octet-stream;base64,{b64_pdf}" download="{pdf_file}">Download PDF</a>'
-		st.markdown(href, unsafe_allow_html=True)
+		# Provide download link for the PDF file
+		with open(pdf_file, "rb") as f:
+    			st.download_button("Download PDF", f.read(), file_name="logcat.pdf", mime="application/pdf")
 
     elif choice == "Android Debug Bridge":
         st.subheader("Perform adb commands for the application")
