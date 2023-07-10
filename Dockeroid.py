@@ -1,17 +1,9 @@
-from calendar import different_locale
-from mimetypes import init
 import os
 import subprocess
-import streamlit as st
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-import plotly.express as px
-import pandas as pd
-import seaborn as sns
-from PIL import Image
-import numpy as np # np mean, np random 
-import time # to simulate a real time data, time loop 
-import plotly.express as px # interactive charts 
+import streamlit as st
+import base64 
 
 def main():
 
@@ -50,7 +42,13 @@ def main():
 		pdf_canvas.drawString(50, 700, logcat_output)
 		pdf_canvas.save()
 
-		st.write("Logs saved in", pdf_file)
+		# Provide the download link
+		with open(pdf_file, "rb") as file:
+    		pdf_data = file.read()
+
+		b64_pdf = base64.b64encode(pdf_data).decode("utf-8")
+		href = f'<a href="data:application/octet-stream;base64,{b64_pdf}" download="{pdf_file}">Download PDF</a>'
+		st.markdown(href, unsafe_allow_html=True)
 
     elif choice == "Android Debug Bridge":
         st.subheader("Perform adb commands for the application")
