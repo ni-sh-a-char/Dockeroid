@@ -5,6 +5,7 @@ FROM ubuntu:latest
 RUN apt-get update && apt-get install -y \
     python3 \
     openjdk-11-jdk \
+    adb \
     qemu-kvm \
     libvirt-daemon-system \
     libvirt-clients \
