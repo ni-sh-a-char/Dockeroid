@@ -8,7 +8,7 @@ on:
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_PASSWORD }}
   REPOSITORY_NAME: ${{ secrets.REPOSITORY_NAME }}
 
 jobs:
@@ -29,7 +29,20 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
 
+      - name: Check if Docker image exists on Docker Hub
+        id: check_image
+        run: |
+          IMAGE_NAME=$DOCKERHUB_USERNAME/$REPOSITORY_NAME:${{ steps.date.outputs.date }}
+          if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" != "" ]]; then
+            echo "::set-output name=image_exists::true"
+          else
+            echo "::set-output name=image_exists::false"
+          fi
+
       - name: Build and Push Docker Image
         run: |
-          docker build -t $DOCKERHUB_USERNAME/$REPOSITORY_NAME:${{ steps.date.outputs.date }} .
-          docker push $DOCKERHUB_USERNAME/$REPOSITORY_NAME:${{ steps.date.outputs.date }}
+          IMAGE_NAME=$DOCKERHUB_USERNAME/$REPOSITORY_NAME:${{ steps.date.outputs.date }}
+          if [[ "${{ steps.check_image.outputs.image_exists }}" == "false" ]]; then
+            docker build -t $IMAGE_NAME .
+          fi
+          docker push $IMAGE_NAME
