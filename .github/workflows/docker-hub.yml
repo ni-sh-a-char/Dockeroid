@@ -34,15 +34,15 @@ jobs:
         run: |
           IMAGE_NAME=$DOCKERHUB_USERNAME/$REPOSITORY_NAME:${{ steps.date.outputs.date }}
           if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" != "" ]]; then
-            echo "::set-output name=image_exists::true"
+            echo "image_exists=true" >> $GITHUB_ENV
           else
-            echo "::set-output name=image_exists::false"
+            echo "image_exists=false" >> $GITHUB_ENV
           fi
 
       - name: Build and Push Docker Image
         run: |
           IMAGE_NAME=$DOCKERHUB_USERNAME/$REPOSITORY_NAME:${{ steps.date.outputs.date }}
-          if [[ "${{ steps.check_image.outputs.image_exists }}" == "false" ]]; then
+          if [[ "${{ env.image_exists }}" == "false" ]]; then
             docker build -t $IMAGE_NAME .
           fi
           docker push $IMAGE_NAME
